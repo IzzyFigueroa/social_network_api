@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addFriend, createThoughtForUser, createUser, deleteFriendFromUser, deleteUserById, getAllThoughts, getAllUsers, getSingleThought, getUserWithFriendAndThought, updateUserById } from "../controllers/api_controllers.js";
+import { addFriend, addReactionToThought, createThoughtForUser, createUser, deleteFriendFromUser, deleteThoughtbyId, deleteUserById, getAllThoughts, getAllUsers, getSingleThought, getUserWithFriendAndThought, updateThoughtById, updateUserById } from "../controllers/api_controllers.js";
 const router = Router();
 // /api/users routes
 router.post('/users', createUser);
@@ -14,4 +14,8 @@ router.delete('/users/:id/friends/:friendId', deleteFriendFromUser);
 router.get('/thoughts', getAllThoughts);
 router.get('/thoughts/:id', getSingleThought);
 router.post('/thought', createThoughtForUser);
+router.put('/thoughts/:id', updateThoughtById);
+router.delete('/thoughts/:id', deleteThoughtbyId);
+// /apithoughts/:thoughtId/reactions
+router.post('/api/thoughts/:thoughtId/reactions', addReactionToThought);
 export default router;

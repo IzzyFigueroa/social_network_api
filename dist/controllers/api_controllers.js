@@ -100,6 +100,60 @@ export async function createThoughtForUser(req, res) {
         user: user
     });
 }
+export async function addLikeToNote(req, res) {
+    const note_id = req.body.note_id;
+    const user_id = req.body.user_id;
+    // Find a user and remove the note id from their notes array
+    await Thought.findByIdAndUpdate(note_id, {
+        $push: {
+            likes: {
+                user: user_id
+            }
+        }
+    });
+    res.json({
+        message: 'Like added successfuly?'
+    });
+}
+export async function updateThoughtById(req, res) {
+    const thoughtId = req.params.id;
+    const updatedData = req.body;
+    const updatedThought = await Thought.findByIdAndUpdate(thoughtId, updatedData);
+    res.json({
+        message: 'Thought updated!',
+        updatedThought
+    });
+}
+export async function deleteThoughtbyId(req, res) {
+    const userId = req.params.id;
+    const thoughtId = req.body.thoughtId;
+    await User.findByIdAndUpdate(userId, {
+        $pull: {
+            thoughts: thoughtId
+        }
+    });
+    res.json({
+        message: 'Thought deleted successfully'
+    });
+}
+export async function addReactionToThought(req, res) {
+    const thoughtId = req.body.thoughtId;
+    const userId = req.body.userId;
+    const reactionBody = req.body.reactionBody;
+    const user = await User.findById(userId);
+    const updatedThought = await Thought.findByIdAndUpdate(thoughtId, {
+        $push: {
+            reactions: {
+                reactionBody: reactionBody,
+                username: user?.username
+            }
+        }
+    });
+    res.json({
+        message: 'Reaction added successfully',
+        thought: updatedThought
+    });
+}
 //Thi is the API Route to GET all users
 // app.get('/api/users', async (_, res: Response) => {
 //     const users = await User.find();
