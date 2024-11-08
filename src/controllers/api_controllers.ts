@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import User from '../models/User.js';
-// import Thought from '../models/Thought.js';
+import Thought from '../models/Thought.js';
+
 
 
 
@@ -102,6 +103,44 @@ res.json({
 message: 'Friend deleted successfully' 
 });
 
+}
+
+export async function getAllThoughts(_: Request, res: Response) {
+   const allThoughts = await Thought.find().populate({
+    path: 'user',
+             populate: {
+                path: 'thoughts'
+             }
+   })
+
+    res.json(allThoughts)
+}
+   
+
+
+export async function getSingleThought(req: Request, res: Response) {
+    
+        const userId = req.params.id;
+        const thought = await Thought.findById(userId).populate('user');
+       
+        res.json(thought);
+    
+}
+
+export async function createThoughtForUser(req: Request, res: Response) {
+    const user = await User.findById(req.body.id);
+    console.log(user)
+    const thought = await Thought.create({
+        text: req.body.text,
+        username: user?.username
+    })
+    user?.thoughts.push(thought._id)
+
+    await user?.save();
+
+    res.json({
+        user: user
+    })
 }
 
 
