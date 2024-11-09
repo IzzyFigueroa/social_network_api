@@ -106,25 +106,28 @@ message: 'Friend deleted successfully'
 }
 
 export async function getAllThoughts(_: Request, res: Response) {
-   const allThoughts = await Thought.find().populate({
-    path: 'user',
-             populate: {
-                path: 'thoughts'
-             }
-   })
+    try {
+        const allThoughts = await Thought.find().populate({
+            path: 'user',
+            select: 'username'
+        });
 
-    res.json(allThoughts)
+        res.json(allThoughts);
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving thoughts', error });
+    }
 }
    
 
 
 export async function getSingleThought(req: Request, res: Response) {
-    
-        const userId = req.params.id;
-        const thought = await Thought.findById(userId).populate('user');
-       
+
+        const thoughtId = req.params.id;
+        const thought = await Thought.findById(thoughtId).populate('user');
+ 
+
         res.json(thought);
-    
+   
 }
 
 export async function createThoughtForUser(req: Request, res: Response) {
@@ -143,44 +146,19 @@ export async function createThoughtForUser(req: Request, res: Response) {
     })
 }
 
-export async function addLikeToNote(req: Request, res: Response) {
-    const note_id = req.body.note_id;
-    const user_id = req.body.user_id;
 
-  
-
-   // Find a user and remove the note id from their notes array
-   await Thought.findByIdAndUpdate(note_id, {
-    $push: {
-        likes: {
-            user: user_id
-        }
-    }
-   });
-
-   res.json({
-    message: 'Like added successfuly?'
-   })
-
-}
 
 export async function updateThoughtById(req: Request, res: Response) {
 
         const thoughtId = req.params.id;
         const updatedData = req.body;
 
-        const updatedThought = await Thought.findByIdAndUpdate(thoughtId, updatedData);
+        const updatedThought = await Thought.findByIdAndUpdate(thoughtId, updatedData, { new: true });
 
-       
-
-        res.json({
-            message: 'Thought updated!',
-            updatedThought
-            
-        } );
+        res.json(updatedThought);
 }
 
-export async function deleteThoughtbyId(req: Request, res: Response) {
+export async function deleteThoughtById(req: Request, res: Response) {
     const userId = req.params.id;
     const thoughtId = req.body.thoughtId
 
@@ -198,14 +176,13 @@ message: 'Thought deleted successfully'
 }
 
 export async function addReactionToThought(req: Request, res: Response) {
- 
-        const thoughtId = req.body.thoughtId;
-        const userId = req.body.userId;
-        const reactionBody = req.body.reactionBody;
+    
+        const thoughtId = req.params.thoughtId;
+        const { userId, reactionBody } = req.body;
 
-     
-        const user = await User.findById(userId);
        
+
+        const user = await User.findById(userId);
 
         const updatedThought = await Thought.findByIdAndUpdate(
             thoughtId,
@@ -217,13 +194,34 @@ export async function addReactionToThought(req: Request, res: Response) {
                     }
                 }
             },
+            { new: true }
         );
+
+       
 
         res.json({
             message: 'Reaction added successfully',
             thought: updatedThought
         });
    
+}
+
+
+export async function deleteReactionById(req: Request, res: Response) {
+    const thoughtId = req.params.thoughtId;
+    const reactionId = req.body.reactionId
+
+
+     await Thought.findByIdAndUpdate(thoughtId, {
+        $pull: {
+            reactionBody: reactionId
+        }
+    });
+
+res.json({ 
+message: 'Reaction deleted successfully' 
+});
+
 }
 
 

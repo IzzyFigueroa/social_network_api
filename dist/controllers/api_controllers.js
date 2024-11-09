@@ -74,17 +74,20 @@ export async function deleteFriendFromUser(req, res) {
     });
 }
 export async function getAllThoughts(_, res) {
-    const allThoughts = await Thought.find().populate({
-        path: 'user',
-        populate: {
-            path: 'thoughts'
-        }
-    });
-    res.json(allThoughts);
+    try {
+        const allThoughts = await Thought.find().populate({
+            path: 'user',
+            select: 'username'
+        });
+        res.json(allThoughts);
+    }
+    catch (error) {
+        res.status(500).json({ message: 'Error retrieving thoughts', error });
+    }
 }
 export async function getSingleThought(req, res) {
-    const userId = req.params.id;
-    const thought = await Thought.findById(userId).populate('user');
+    const thoughtId = req.params.id;
+    const thought = await Thought.findById(thoughtId).populate('user');
     res.json(thought);
 }
 export async function createThoughtForUser(req, res) {
@@ -100,31 +103,13 @@ export async function createThoughtForUser(req, res) {
         user: user
     });
 }
-export async function addLikeToNote(req, res) {
-    const note_id = req.body.note_id;
-    const user_id = req.body.user_id;
-    // Find a user and remove the note id from their notes array
-    await Thought.findByIdAndUpdate(note_id, {
-        $push: {
-            likes: {
-                user: user_id
-            }
-        }
-    });
-    res.json({
-        message: 'Like added successfuly?'
-    });
-}
 export async function updateThoughtById(req, res) {
     const thoughtId = req.params.id;
     const updatedData = req.body;
-    const updatedThought = await Thought.findByIdAndUpdate(thoughtId, updatedData);
-    res.json({
-        message: 'Thought updated!',
-        updatedThought
-    });
+    const updatedThought = await Thought.findByIdAndUpdate(thoughtId, updatedData, { new: true });
+    res.json(updatedThought);
 }
-export async function deleteThoughtbyId(req, res) {
+export async function deleteThoughtById(req, res) {
     const userId = req.params.id;
     const thoughtId = req.body.thoughtId;
     await User.findByIdAndUpdate(userId, {
@@ -137,9 +122,8 @@ export async function deleteThoughtbyId(req, res) {
     });
 }
 export async function addReactionToThought(req, res) {
-    const thoughtId = req.body.thoughtId;
-    const userId = req.body.userId;
-    const reactionBody = req.body.reactionBody;
+    const thoughtId = req.params.thoughtId;
+    const { userId, reactionBody } = req.body;
     const user = await User.findById(userId);
     const updatedThought = await Thought.findByIdAndUpdate(thoughtId, {
         $push: {
@@ -148,10 +132,22 @@ export async function addReactionToThought(req, res) {
                 username: user?.username
             }
         }
-    });
+    }, { new: true });
     res.json({
         message: 'Reaction added successfully',
         thought: updatedThought
+    });
+}
+export async function deleteReactionById(req, res) {
+    const thoughtId = req.params.thoughtId;
+    const reactionId = req.body.reactionId;
+    await Thought.findByIdAndUpdate(thoughtId, {
+        $pull: {
+            reactionBody: reactionId
+        }
+    });
+    res.json({
+        message: 'Reaction deleted successfully'
     });
 }
 //Thi is the API Route to GET all users
