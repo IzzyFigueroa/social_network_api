@@ -12,8 +12,7 @@
 
   ## Questions
  My Github username is https://github.com/izzyfigueroa
-
- Video link: 
+ Video link: https://drive.google.com/file/d/10-Gi2zErkNZmI-tGSsa2KmaXJK6CNOeR/view?usp=sharing
   
  Please contact me at izzyfigueroa6@gmail.com
 
