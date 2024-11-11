@@ -20,7 +20,7 @@
  This is a README.md for the social_network_app. This application alls users to add users, post/delete thoughts and add reactions to them. There is also a feature to add and delete friends
 
   ## Installation
- Users just need to type 'npm run dev' in their terminal and to use Insomnia
+ Users just need to type 'npm start' in their terminal and the server will connect to Insomnia
   ## Usage
  For Social Networking
 
